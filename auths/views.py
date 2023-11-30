@@ -1,10 +1,11 @@
-from rest_framework import generics , viewsets
+from rest_framework import generics , viewsets, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import CustomUser
 from .serializers import CustomUserSerializer
+from .permissions import IsStudent,IsTeacherOrAdmin
 
 class SignupView(generics.CreateAPIView):
     queryset = CustomUser.objects.filter(user_type='student')
@@ -32,10 +33,10 @@ class UserLoginView(APIView):
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_permissions(self):
         if self.action == 'retrieve':
-            return [IsAuthenticated()]  
+            return [IsStudent()]  
         else:
-            return [IsAdminUser()]
+            return [IsTeacherOrAdmin()]
