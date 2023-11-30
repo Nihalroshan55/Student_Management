@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from .models import CustomUser
 from .serializers import CustomUserSerializer
 
-class StudentSignupView(generics.CreateAPIView):
+class SignupView(generics.CreateAPIView):
     queryset = CustomUser.objects.filter(user_type='student')
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]
@@ -29,3 +29,7 @@ class UserLoginView(APIView):
         else:
             return Response({'error': 'Invalid credentials'}, status=401)
         
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticated]
