@@ -2,7 +2,10 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.contrib.auth.models import Group
 from django.db import models
 
+
+# Created CustomUserManager for the functionality CustomUser as 
 class CustomUserManager(BaseUserManager):
+    # function for create normal user
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
@@ -11,7 +14,9 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-
+    
+    
+    # function for create superuser user
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -23,11 +28,15 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
+
+# user model
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    
+    #choice for type of user for giving the authorisation
     
     USER_TYPE_CHOICES = (
         ('superadmin', 'Super Admin'),
@@ -37,7 +46,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES)
 
     objects = CustomUserManager()
-
+    # required fields to make it work with Django authentication system
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name', 'user_type']
 
