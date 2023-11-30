@@ -39,16 +39,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     #choice for type of user for giving the authorisation
     
     USER_TYPE_CHOICES = (
-        ('superadmin', 'Super Admin'),
         ('teacher', 'Teacher'),
         ('student', 'Student'),
     )
-    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES)
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES ,blank=True)
 
     objects = CustomUserManager()
     # required fields to make it work with Django authentication system
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name', 'user_type']
+    REQUIRED_FIELDS = ['full_name']
 
     def __str__(self):
         return self.email
