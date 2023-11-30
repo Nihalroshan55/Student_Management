@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from .models import CustomUser
 from .serializers import CustomUserSerializer
 from .permissions import IsStudent,IsTeacherOrAdmin
+from rest_framework.exceptions import ValidationError
 
 class SignupView(generics.CreateAPIView):
     queryset = CustomUser.objects.filter(user_type='student')
@@ -37,6 +38,16 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         if self.action == 'retrieve':
-            return [IsStudent()]  
+            return [IsStudent()]
         else:
             return [IsTeacherOrAdmin()]
+        
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Check if the current user is the owner of the instance or an admin or teacher
+        if (instance == request.user) or (request.user.user_type == 'teacher') or request.user.is_superuser:
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        else:
+            raise ValidationError("You are not allowed to retrieve this user's data.")
+    
