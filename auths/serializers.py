@@ -5,7 +5,7 @@ from .models import CustomUser
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = "__all__"
+        fields = ('id', 'email', 'full_name', 'user_type', 'password','is_active')
         extra_kwargs = {'password': {'write_only': True}}
 
     # manipulating inbuild create
