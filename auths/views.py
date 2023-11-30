@@ -33,3 +33,9 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [IsAuthenticated()]  
+        else:
+            return [IsAdminUser()]
