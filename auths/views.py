@@ -1,15 +1,31 @@
-from rest_framework import generics, permissions,status
+from rest_framework import generics , viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from auths.serializers import  StudentSignupSerializer
+from rest_framework.views import APIView
+from .models import CustomUser
+from .serializers import CustomUserSerializer
 
-# Create your views here.
+class StudentSignupView(generics.CreateAPIView):
+    queryset = CustomUser.objects.filter(user_type='student')
+    serializer_class = CustomUserSerializer
+    permission_classes = [AllowAny]
 
-class SignupView(generics.CreateAPIView):
-    serializer_class = StudentSignupSerializer
+class UserLoginView(APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        email = request.data.get('email')
+        password = request.data.get('password')
+        user = CustomUser.objects.filter(email=email, user_type__in=['superadmin', 'teacher', 'student']).first()
+
+        if user and user.check_password(password):
+            refresh = RefreshToken.for_user(user)
+            data = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+            return Response(data)
+        else:
+            return Response({'error': 'Invalid credentials'}, status=401)
+        

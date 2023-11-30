@@ -45,6 +45,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         # Automatically add user to the corresponding group based on user_type
         group_name = f"{self.user_type}s"
         group, created = Group.objects.get_or_create(name=group_name)
